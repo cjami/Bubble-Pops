@@ -143,9 +143,4 @@ public class BallsRS {
     public void newTouchPosition(float x, float y, float pressure, int id) {
         mPhysicsScript.invoke_touch(x, y, pressure, id);
     }
-
-    public void setAccel(float x, float y) {
-        mPhysicsScript.set_gGravityVector(new Float2(x, y));
-    }
-
 }

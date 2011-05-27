@@ -39,6 +39,7 @@ void initParts(int w, int h)
         balls1[ct].delta.x = 0.f;
         balls1[ct].delta.y = 0.f;
         balls1[ct].size = 1.f;
+        balls1[ct].active = 1;
 
         float r = rsRand(100.f);
         if (r > 90.f) {
@@ -71,8 +72,13 @@ int root() {
     rsForEach(physics_script, bc.ain, bc.aout, &bc);
 
     for (uint32_t ct=0; ct < bc.dimX; ct++) {
-        point[ct].position = bout[ct].position;
-        point[ct].size = 6.f /*+ bout[ct].color.g * 6.f*/ * bout[ct].size;
+    	if(bout[ct].active){
+        	point[ct].position = bout[ct].position;
+        	point[ct].size = 6.f /*+ bout[ct].color.g * 6.f*/ * bout[ct].size;
+        }else{
+        	// Don't draw inactive balls
+        	point[ct].size = 0.f;
+        }
     }
 
     frame++;

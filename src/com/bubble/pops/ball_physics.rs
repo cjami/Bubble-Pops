@@ -3,8 +3,6 @@
 
 #include "balls.rsh"
 
-float2 gGravityVector = {0.f, 9.8f};
-
 float2 gMinPos = {0.f, 0.f};
 float2 gMaxPos = {1280.f, 700.f};
 
@@ -39,43 +37,19 @@ void root(const Ball_t *ballIn, Ball_t *ballOut, const BallControl_t *ctl, uint3
             float forceScale = ballIn->size * bPtr[xin].size;
             forceScale *= forceScale;
 
-            if (len2 > 16 /* (minDist*minDist)*/)  {
-                // Repulsion
-                float len = sqrt(len2);
-                fv -= (vec / (len * len * len)) * 20000.f * forceScale;
+            // Collision
+            /*float2 axis = normalize(vec);
+            float e1 = dot(axis, ballIn->delta);
+            float e2 = dot(axis, bPtr[xin].delta);
+            float e = (e1 - e2) * 0.45f;
+            if (e1 > 0) {
+                fv -= axis * e;
             } else {
-                if (len2 < 1) {
-                    if (xin == x) {
-                        continue;
-                    }
-                    ballOut->delta = 0.f;
-                    ballOut->position = ballIn->position;
-                    if (xin > x) {
-                        ballOut->position.x += 1.f;
-                    } else {
-                        ballOut->position.x -= 1.f;
-                    }
-                    //ballOut->color.rgb = 1.f;
-                    //ballOut->arcID = -1;
-                    //ballOut->arcStr = 0;
-                    return;
-                }
-                // Collision
-                float2 axis = normalize(vec);
-                float e1 = dot(axis, ballIn->delta);
-                float e2 = dot(axis, bPtr[xin].delta);
-                float e = (e1 - e2) * 0.45f;
-                if (e1 > 0) {
-                    fv -= axis * e;
-                } else {
-                    fv += axis * e;
-                }
-            }
+                fv += axis * e;
+            }*/
         }
     }
 
-    fv /= ballIn->size * ballIn->size * ballIn->size;
-    fv -= gGravityVector * 4.f;
     fv *= ctl->dt;
 
     for (int i=0; i < 10; i++) {
@@ -83,7 +57,9 @@ void root(const Ball_t *ballIn, Ball_t *ballOut, const BallControl_t *ctl, uint3
             float2 vec = touchPos[i] - ballIn->position;
             float2 vec2 = vec * vec;
             float len2 = max(2.f, vec2.x + vec2.y);
-            fv -= (vec / len2) * touchPressure[i] * 300.f;
+            if(len2 < 30.f*30.f){
+            	ballOut->active = 0;
+            }            
         }
     }
 
@@ -141,6 +117,6 @@ void root(const Ball_t *ballIn, Ball_t *ballOut, const BallControl_t *ctl, uint3
 
     ballOut->size = ballIn->size;
 
-    //rsDebug("physics pos out", ballOut->position);
+    rsDebug("physics pos out", ballOut->position);
 }
 

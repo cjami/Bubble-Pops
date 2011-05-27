@@ -88,14 +88,6 @@ public class BallsView extends RSSurfaceView {
         }
         return true;
     }
-
-    void setAccel(float x, float y, float z) {
-        if (mRender == null) {
-            return;
-        }
-        mRender.setAccel(x, -y);
-    }
-
 }
 
 

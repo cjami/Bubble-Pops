@@ -4,6 +4,7 @@ typedef struct __attribute__((packed, aligned(4))) Ball {
     float2 position;
     //float3 color;
     float size;
+    int active;
     //int arcID;
     //float arcStr;
 } Ball_t;

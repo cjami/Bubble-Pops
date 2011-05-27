@@ -17,14 +17,10 @@
 package com.bubble.pops;
 
 import android.app.Activity;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
 
-public class Balls extends Activity implements SensorEventListener {
+public class Balls extends Activity {
     //EventListener mListener = new EventListener();
 
     private static final String LOG_TAG = "libRS_jni";
@@ -32,30 +28,12 @@ public class Balls extends Activity implements SensorEventListener {
     private static final boolean LOG_ENABLED = DEBUG;
 
     private BallsView mView;
-    private SensorManager mSensorManager;
 
     // get the current looper (from your Activity UI thread for instance
-
-
-    public void onSensorChanged(SensorEvent event) {
-        //android.util.Log.d("rs", "sensor: " + event.sensor + ", x: " + event.values[0] + ", y: " + event.values[1] + ", z: " + event.values[2]);
-        synchronized (this) {
-            if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-                if(mView != null) {
-                    mView.setAccel(event.values[0], event.values[1], event.values[2]);
-                }
-            }
-        }
-    }
-
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-    }
 
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-
-        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
         // Create our Preview view and set it as the content of our
         // Activity
@@ -65,10 +43,6 @@ public class Balls extends Activity implements SensorEventListener {
 
     @Override
     protected void onResume() {
-        mSensorManager.registerListener(this,
-                                        mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-                                        SensorManager.SENSOR_DELAY_FASTEST);
-
         // Ideally a game should implement onResume() and onPause()
         // to take appropriate action when the activity looses focus
         super.onResume();
@@ -80,12 +54,6 @@ public class Balls extends Activity implements SensorEventListener {
         super.onPause();
         mView.pause();
         Runtime.getRuntime().exit(0);
-    }
-
-    @Override
-    protected void onStop() {
-        mSensorManager.unregisterListener(this);
-        super.onStop();
     }
 
     static void log(String message) {
