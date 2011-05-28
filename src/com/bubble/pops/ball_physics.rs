@@ -11,14 +11,16 @@ static int touchState[10];
 static float deltaHistory[10][10][2];
 static int deltaHistoryIndex[10];
 
+int scores[2];
+
 static float2 compAvgVel(float deltaHistoryVect[10][2]) {
 	float2 avgs = {0.0f, 0.0f};
 	for (int i = 0; i < 10; i ++) {
 		avgs.x += deltaHistoryVect[i][0];
 		avgs.y += deltaHistoryVect[i][1];
 	}
-	avgs.x = avgs.x*3;
-	avgs.y = avgs.y*3;
+	avgs.x = avgs.x*1.1;
+	avgs.y = avgs.y*1.1;
 	return avgs;
 }
 
@@ -41,7 +43,7 @@ void touch(float x, float y, float pressure, int id) {
     }
 }
 
-void root(const Ball_t *ballIn, Ball_t *ballOut, const BallControl_t *ctl, uint32_t x) {
+void root(const Ball_t *ballIn, Ball_t *ballOut, BallControl_t *ctl, uint32_t x) {
     float2 fv = {0, 0};
     float2 pos = ballIn->position;
 
@@ -72,7 +74,7 @@ void root(const Ball_t *ballIn, Ball_t *ballOut, const BallControl_t *ctl, uint3
 	        float2 vec2 = vec * vec;
 	        float len2 = vec2.x + vec2.y;
 	
-	        if (len2 < 10000) {
+	        if (sqrt(len2) < ballIn->size) {
 	            //float minDist = ballIn->size + bPtr[xin].size;
 	            float forceScale = ballIn->size * bPtr[xin].size;
 	            forceScale *= forceScale;
@@ -109,11 +111,17 @@ void root(const Ball_t *ballIn, Ball_t *ballOut, const BallControl_t *ctl, uint3
 	        }
 	    }
 	
-	    ballOut->delta = (ballIn->delta * (1.f - 0.02f)) + fv;
+	    ballOut->delta = (ballIn->delta * (1.f - 0.002f)) + fv;
 	    ballOut->position = ballIn->position + (ballOut->delta * ctl->dt);
 	
 	    const float wallForce = 400.f;
 	    if (ballOut->position.x > (gMaxPos.x - 20.f)) {
+	        if (ballIn->team && ballOut->active) {
+	        	scores[ballIn->team]++;
+	        	ballOut->active = 0;
+//	        	rsDebug("SCORE! ",ballIn->team);
+//	        	rsDebug("With goals: ",scores[ballIn->team]);
+	        }
 	        float d = gMaxPos.x - ballOut->position.x;
 	        if (d < 0.f) {
 	            if (ballOut->delta.x > 0) {
@@ -126,6 +134,12 @@ void root(const Ball_t *ballIn, Ball_t *ballOut, const BallControl_t *ctl, uint3
 	    }
 	
 	    if (ballOut->position.x < (gMinPos.x + 20.f)) {
+	    	if (!ballIn->team && ballOut->active) {
+	    		scores[ballIn->team]++;
+	        	ballOut->active = 0;
+//	        	rsDebug("SCORE! ",ballIn->team);
+//	        	rsDebug("With goals: ",scores[ballIn->team]);
+	        }
 	        float d = ballOut->position.x - gMinPos.x;
 	        if (d < 0.f) {
 	            if (ballOut->delta.x < 0) {
@@ -160,6 +174,10 @@ void root(const Ball_t *ballIn, Ball_t *ballOut, const BallControl_t *ctl, uint3
 	            ballOut->delta.y += min(wallForce / (d * d * d), 10.f);
 	        }
 	    }
+	    
+	    //Update rendered scores
+	    ctl->scores[0] = scores[0];
+	    ctl->scores[1] = scores[1];
 	}
 	
     ballOut->size = ballIn->size;

@@ -39,7 +39,7 @@ void initParts(int w, int h)
     for (uint32_t ct=0; ct < dimX; ct++) {
         balls1[ct].delta.x = 0.f;
         balls1[ct].delta.y = 0.f;
-        balls1[ct].size = 10.f;
+        balls1[ct].size = 20.f;
         balls1[ct].active = 1;
         balls1[ct].pointerId = -1;
         balls1[ct].team = ct % 2;
@@ -53,6 +53,45 @@ void initParts(int w, int h)
     }
 }
 
+//char* massiveHack(int num) {
+//	static char chars[10] = "0123456789";
+//	static char thisstr[10];
+//	// thisstr[6] = "     "; // null terminated string
+//	int i = 0;
+//	while (num/10 > 1 && i < 6) {
+//		thisstr[i] = chars[num % 10];
+//		num = num / 10;
+//		i++;
+//	}
+//	thisstr[i] = '\0';
+//	return thisstr;
+//}
+
+
+// The official libc "itoa" code
+char *itoa(i)
+     int i;
+{
+	int INT_DIGITS = 19;
+  /* Room for INT_DIGITS digits, - and '\0' */
+  static char buf[21];
+  char *p = buf + INT_DIGITS + 1;	/* points to terminating '\0' */
+  if (i >= 0) {
+    do {
+      *--p = '0' + (i % 10);
+      i /= 10;
+    } while (i != 0);
+    return p;
+  }
+  else {			/* i < 0 */
+    do {
+      *--p = '0' - (i % 10);
+      i /= 10;
+    } while (i != 0);
+    *--p = '-';
+  }
+  return p;
+}
 
 
 int root() {
@@ -92,6 +131,11 @@ int root() {
     }
 
     frame++;
+    char buf[64];
+    rsgFontColor(0.f, 0.f, 1.f, 1.f);
+    rsgDrawText(itoa(bc.scores[0]), 620, 30);
+    rsgFontColor(0.f, 1.f, 0.f, 1.f);
+    rsgDrawText(itoa(bc.scores[1]), 620, 610);
     rsgBindProgramFragment(gPFPoints);
     rsgDrawMesh(partMesh);
     rsClearObject(&bc.ain);

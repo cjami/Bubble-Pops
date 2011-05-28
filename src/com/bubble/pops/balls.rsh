@@ -7,6 +7,7 @@ typedef struct __attribute__((packed, aligned(4))) Ball {
     int active;
     int pointerId;
     int team;
+    int scored;
     //int arcID;
     //float arcStr;
 } Ball_t;
@@ -18,4 +19,5 @@ typedef struct BallControl {
     rs_allocation ain;
     rs_allocation aout;
     float dt;
+    int scores[2];
 } BallControl_t;
