@@ -45,9 +45,9 @@ void initParts(int w, int h)
         balls1[ct].team = ct % 2;
 	    balls1[ct].position.y = rsRand(0.f, (float)h);
         if(balls1[ct].team){
-	        balls1[ct].position.x = rsRand(0.f, 0.5f*(float)w);
+	        balls1[ct].position.x = rsRand(0.f, 0.3f*(float)w);
         }else{
-	        balls1[ct].position.x = rsRand(0.f, 0.5f*(float)w) + 0.5f*(float)w;
+	        balls1[ct].position.x = rsRand(0.f, 0.3f*(float)w) + 0.7f*(float)w;
         }
         rsDebug("Ball created. Team: ", balls1[ct].team);
     }

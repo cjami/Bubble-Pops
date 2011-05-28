@@ -98,9 +98,13 @@ void root(const Ball_t *ballIn, Ball_t *ballOut, const BallControl_t *ctl, uint3
 	            float2 vec2 = vec * vec;
 	            float len2 = max(2.f, vec2.x + vec2.y);
 	            if(len2 < 30.f*30.f){
-	            	//ballOut->active = 0;
-	            	//rsDebug("Setting id",i);
-	            	ballOut->pointerId = i;
+	            	if ((ballIn->team && touchPos[i].x >= 640) ||
+	            		(!ballIn->team && touchPos[i].x <= 640)) {
+	            		ballOut->active = 0;
+	            	} else {
+	            		//rsDebug("Setting id",i);
+	            		ballOut->pointerId = i;
+	            	}
 	            }            
 	        }
 	    }
