@@ -2,9 +2,11 @@
 typedef struct __attribute__((packed, aligned(4))) Ball {
     float2 delta;
     float2 position;
-    //float3 color;
+    //float4 color;
     float size;
     int active;
+    int pointerId;
+    int team;
     //int arcID;
     //float arcStr;
 } Ball_t;

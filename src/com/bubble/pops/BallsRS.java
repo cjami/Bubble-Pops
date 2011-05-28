@@ -29,7 +29,7 @@ import android.renderscript.RenderScript;
 import android.renderscript.RenderScriptGL;
 
 public class BallsRS {
-    public static final int PART_COUNT = 900;
+    public static final int PART_COUNT = 10;
 
     public BallsRS() {
     }
@@ -64,7 +64,8 @@ public class BallsRS {
                     "  vec4 pos = vec4(0.0, 0.0, 0.0, 1.0);\n" +
                     "  pos.xy = ATTRIB_position;\n" +
                     "  gl_Position = UNI_MVP * pos;\n" +
-                    "  varColor = vec4(1.0, 1.0, 1.0, 1.0);\n" +
+                    "  varColor = ATTRIB_color;\n" +
+                    //"  varColor = vec4(1.0, 1.0, 1.0, 1.0);\n" +
                     "  gl_PointSize = ATTRIB_size;\n" +
                     "}\n";
         sb.setShader(t);
