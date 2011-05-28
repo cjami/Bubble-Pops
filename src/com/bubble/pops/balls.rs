@@ -144,9 +144,11 @@ int root() {
     frame++;
     char buf[64];
     rsgFontColor(0.f, 0.f, 1.f, 1.f);
-    rsgDrawText(itoa(bc.scores[0]), 620, 30);
+	rsgDrawText("Team Blue: ", 520, 30);
+    rsgDrawText(itoa(bc.scores[0]), 670, 30);
     rsgFontColor(0.f, 1.f, 0.f, 1.f);
-    rsgDrawText(itoa(bc.scores[1]), 620, 680);
+    rsgDrawText("Team Green: ", 520, 680);
+    rsgDrawText(itoa(bc.scores[1]), 670, 680);
     rsgBindProgramFragment(gPFPoints);
     rsgDrawMesh(partMesh);
     rsClearObject(&bc.ain);
