@@ -7,6 +7,8 @@
 #pragma stateVertex(parent)
 #pragma stateStore(parent)
 
+static const int RESET_EVENT = 2;
+
 rs_program_fragment gPFPoints;
 rs_program_fragment gPFLines;
 rs_mesh partMesh;
@@ -101,7 +103,7 @@ char *itoa(i)
 
 
 int root() {
-    rsgClearColor(0.f, 0.f, 0.f, 1.f);
+    rsgClearColor(0.05f, 0.05f, 0.05f, 0.05f);
 
     BallControl_t bc;
     Ball_t *bout;
@@ -144,13 +146,14 @@ int root() {
     rsgFontColor(0.f, 0.f, 1.f, 1.f);
     rsgDrawText(itoa(bc.scores[0]), 620, 30);
     rsgFontColor(0.f, 1.f, 0.f, 1.f);
-    rsgDrawText(itoa(bc.scores[1]), 620, 630);
+    rsgDrawText(itoa(bc.scores[1]), 620, 680);
     rsgBindProgramFragment(gPFPoints);
     rsgDrawMesh(partMesh);
     rsClearObject(&bc.ain);
     rsClearObject(&bc.aout);
     
     if (active_count == 0) {
+    	rsSendToClient(RESET_EVENT);
     	initParts(ws,hs);
     }
     

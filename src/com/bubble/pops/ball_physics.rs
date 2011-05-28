@@ -3,6 +3,9 @@
 
 #include "balls.rsh"
 
+static const int SCORE_EVENT = 1;
+static const int POP_EVENT = 3;
+
 float2 gMinPos = {0.f, 0.f};
 float2 gMaxPos = {1280.f, 700.f};
 
@@ -19,8 +22,10 @@ static float2 compAvgVel(float deltaHistoryVect[10][2]) {
 		avgs.x += deltaHistoryVect[i][0];
 		avgs.y += deltaHistoryVect[i][1];
 	}
-	avgs.x = avgs.x*1.1;
-	avgs.y = avgs.y*1.1;
+	avgs.x = avgs.x*1.0;
+	avgs.y = avgs.y*1.0;
+	if (avgs.x > 400.f) { avgs.x = 400.f; }
+	if (avgs.x < -400.f) { avgs.x = -400.f; }
 	return avgs;
 }
 
@@ -56,8 +61,18 @@ void root(const Ball_t *ballIn, Ball_t *ballOut, BallControl_t *ctl, uint32_t x)
     ballOut->team = ballIn->team;
     ballOut->active = ballIn->active;
 	if (ballIn->pointerId > -1 && touchState[ballIn->pointerId] == 2) {
-		if (fabs(touchPos[ballIn->pointerId].x - ballIn->position.x) > 0.f){ 
-		//fabs(touchPos[ballIn->pointerId].y - ballIn->position.y) > 30.f) {
+	
+		// Explode the ball if it is dragged over the half way line
+		if ((ballOut->team && touchPos[ballIn->pointerId].x > 740) ||
+		(!ballOut->team && touchPos[ballIn->pointerId].x < 540)) {
+			
+			if (ballOut->active) {
+				ballOut->active = 0;
+	        	rsSendToClient(POP_EVENT);
+	        }
+			
+		// Otherwise update the tracking history
+		} else if (fabs(touchPos[ballIn->pointerId].x - ballIn->position.x) > 0.f){ 
 			ballOut->delta = touchPos[ballIn->pointerId] - ballIn->position;
 			deltaHistory[ballIn->pointerId][deltaHistoryIndex[ballIn->pointerId]][0] = ballOut->delta.x;
 			deltaHistory[ballIn->pointerId][deltaHistoryIndex[ballIn->pointerId]][1] = ballOut->delta.y;
@@ -100,9 +115,10 @@ void root(const Ball_t *ballIn, Ball_t *ballOut, BallControl_t *ctl, uint32_t x)
 	            float2 vec2 = vec * vec;
 	            float len2 = max(2.f, vec2.x + vec2.y);
 	            if(len2 < 30.f*30.f){
-	            	if ((ballIn->team && touchPos[i].x >= 640) ||
-	            		(!ballIn->team && touchPos[i].x <= 640)) {
+	            	if (ballOut->active && ((ballIn->team && touchPos[i].x >= 640) ||
+	            		(!ballIn->team && touchPos[i].x <= 640))) {
 	            		ballOut->active = 0;
+	            		rsSendToClient(POP_EVENT);
 	            	} else {
 	            		//rsDebug("Setting id",i);
 	            		ballOut->pointerId = i;
@@ -111,7 +127,7 @@ void root(const Ball_t *ballIn, Ball_t *ballOut, BallControl_t *ctl, uint32_t x)
 	        }
 	    }
 	
-	    ballOut->delta = (ballIn->delta * (1.f - 0.002f)) + fv;
+	    ballOut->delta = (ballIn->delta * (1.f - 0.005f)) + fv;
 	    ballOut->position = ballIn->position + (ballOut->delta * ctl->dt);
 	
 	    const float wallForce = 400.f;
@@ -121,6 +137,7 @@ void root(const Ball_t *ballIn, Ball_t *ballOut, BallControl_t *ctl, uint32_t x)
 	        	ballOut->active = 0;
 //	        	rsDebug("SCORE! ",ballIn->team);
 //	        	rsDebug("With goals: ",scores[ballIn->team]);
+				rsSendToClient(SCORE_EVENT);
 	        }
 	        float d = gMaxPos.x - ballOut->position.x;
 	        if (d < 0.f) {
@@ -137,6 +154,7 @@ void root(const Ball_t *ballIn, Ball_t *ballOut, BallControl_t *ctl, uint32_t x)
 	    	if (!ballIn->team && ballOut->active) {
 	    		scores[ballIn->team]++;
 	        	ballOut->active = 0;
+	        	rsSendToClient(SCORE_EVENT);
 //	        	rsDebug("SCORE! ",ballIn->team);
 //	        	rsDebug("With goals: ",scores[ballIn->team]);
 	        }

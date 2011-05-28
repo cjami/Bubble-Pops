@@ -26,7 +26,7 @@ public class Balls extends Activity {
     private static final String LOG_TAG = "libRS_jni";
     private static final boolean DEBUG  = false;
     private static final boolean LOG_ENABLED = DEBUG;
-
+    
     private BallsView mView;
 
     // get the current looper (from your Activity UI thread for instance
@@ -36,9 +36,9 @@ public class Balls extends Activity {
         super.onCreate(icicle);
 
         // Create our Preview view and set it as the content of our
-        // Activity
-        mView = new BallsView(this);
-        setContentView(mView);
+        // Activity     
+        setContentView(R.layout.main);
+        mView = (BallsView) findViewById(R.id.balls_view);
     }
 
     @Override

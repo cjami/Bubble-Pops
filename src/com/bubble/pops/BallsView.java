@@ -16,18 +16,19 @@
 
 package com.bubble.pops;
 
+import android.content.Context;
 import android.renderscript.RSSurfaceView;
 import android.renderscript.RenderScriptGL;
-
-import android.content.Context;
-import android.view.SurfaceHolder;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.SurfaceHolder;
 
 public class BallsView extends RSSurfaceView {
+	private Context context;
 
-    public BallsView(Context context) {
-        super(context);
-        //setFocusable(true);
+    public BallsView(Context context, AttributeSet atts) {
+        super(context, atts);
+        this.context = context;
     }
 
     private RenderScriptGL mRS;
@@ -40,7 +41,7 @@ public class BallsView extends RSSurfaceView {
             RenderScriptGL.SurfaceConfig sc = new RenderScriptGL.SurfaceConfig();
             mRS = createRenderScriptGL(sc);
             mRS.setSurface(holder, w, h);
-            mRender = new BallsRS();
+            mRender = new BallsRS(context);
             mRender.init(mRS, getResources(), w, h);
         }
         mRender.updateProjectionMatrices();

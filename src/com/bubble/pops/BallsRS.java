@@ -16,7 +16,14 @@
 
 package com.bubble.pops;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import android.content.Context;
 import android.content.res.Resources;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.os.Vibrator;
 import android.renderscript.Allocation;
 import android.renderscript.Float2;
 import android.renderscript.Matrix4f;
@@ -27,11 +34,30 @@ import android.renderscript.ProgramStore;
 import android.renderscript.ProgramVertex;
 import android.renderscript.RenderScript;
 import android.renderscript.RenderScriptGL;
+import android.renderscript.RenderScript.RSMessageHandler;
 
 public class BallsRS {
     public static final int PART_COUNT = 10;
+    private static final int SCORE_EVENT = 1;
+    private static final int RESET_EVENT = 2;
+    private static final int POP_EVENT = 3;
+    private static final int POP_SOUND = 1;
+    private static final int SCORE_SOUND = 2;
+    private static final int RESET_SOUND = 3;
+    private static final int WELCOME_SOUND = 4;
+    private static final long VIBRATE_SHORT = 300;
+    private SoundPool soundPool;
+    private Map<Integer, Integer> soundPoolMap;
+    private Vibrator vibrator;
 
-    public BallsRS() {
+    public BallsRS(Context context) {
+    	vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+        soundPool = new SoundPool(4, AudioManager.STREAM_MUSIC, 100);
+        soundPoolMap = new HashMap<Integer, Integer>();
+        soundPoolMap.put(POP_SOUND, soundPool.load(context, R.raw.pop, 1));
+        soundPoolMap.put(SCORE_SOUND, soundPool.load(context, R.raw.beep, 1));
+        soundPoolMap.put(RESET_SOUND, soundPool.load(context, R.raw.laser, 1));
+        soundPoolMap.put(WELCOME_SOUND, soundPool.load(context, R.raw.welcome, 1));
     }
 
     private Resources mRes;
@@ -43,6 +69,24 @@ public class BallsRS {
 //    private ProgramVertex mPV;
     private ScriptField_Point mPoints;
     private ScriptField_VpConsts mVpConsts;
+    private RSMessageHandler msgHandler = new RSMessageHandler(){
+    	public void run() {
+    		switch(mID){
+    		case SCORE_EVENT:
+    			android.util.Log.e("rs", "Score Event!");
+    			vibrator.vibrate(VIBRATE_SHORT);
+    			soundPool.play(soundPoolMap.get(SCORE_SOUND), 70, 70, 1, 0, 1f);
+    			break;
+    		case RESET_EVENT:
+    			soundPool.play(soundPoolMap.get(RESET_SOUND), 100, 100, 1, 0, 1f);
+    			break;
+    		case POP_EVENT:
+    			android.util.Log.e("rs", "Pop Event!");
+    			soundPool.play(soundPoolMap.get(POP_SOUND), 100, 100, 1, 0, 1f);
+    			break;
+    		}
+    	};
+    };
 
     void updateProjectionMatrices() {
         mVpConsts = new ScriptField_VpConsts(mRS, 1,
@@ -96,7 +140,9 @@ public class BallsRS {
     public void init(RenderScriptGL rs, Resources res, int width, int height) {
         mRS = rs;
         mRes = res;
-
+        
+        mRS.setMessageHandler(msgHandler);
+        
         ProgramFragmentFixedFunction.Builder pfb = new ProgramFragmentFixedFunction.Builder(rs);
         pfb.setPointSpriteTexCoordinateReplacement(true);
         pfb.setTexture(ProgramFragmentFixedFunction.Builder.EnvMode.MODULATE,
@@ -109,7 +155,7 @@ public class BallsRS {
         mPFLines = pfb.create();
 
         android.util.Log.e("rs", "Load texture");
-        mPFPoints.bindTexture(loadTexture(R.drawable.flares), 0);
+        mPFPoints.bindTexture(loadTexture(R.drawable.bubble), 0);
 
         mPoints = new ScriptField_Point(mRS, PART_COUNT, Allocation.USAGE_SCRIPT);
 
@@ -139,6 +185,8 @@ public class BallsRS {
         mScript.invoke_initParts(width, height);
 
         mRS.bindRootScript(mScript);
+        
+        soundPool.play(soundPoolMap.get(WELCOME_SOUND), 100, 100, 1, 0, 1f);
     }
 
     public void newTouchPosition(float x, float y, float pressure, int id) {
