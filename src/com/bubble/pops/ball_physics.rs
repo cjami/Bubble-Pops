@@ -88,22 +88,22 @@ void root(const Ball_t *ballIn, Ball_t *ballOut, BallControl_t *ctl, uint32_t x)
 	        float2 vec = bPtr[xin].position - pos;
 	        float2 vec2 = vec * vec;
 	        float len2 = vec2.x + vec2.y;
-	
-	        if (sqrt(len2) < ballIn->size) {
+	        if (bPtr[xin].active && sqrt(len2) < 5.f*ballIn->size && vec.x != 0 && vec.y != 0) {
 	            //float minDist = ballIn->size + bPtr[xin].size;
 	            float forceScale = ballIn->size * bPtr[xin].size;
 	            forceScale *= forceScale;
 	
 	            // Collision
-	            /*float2 axis = normalize(vec);
+				rsDebug("Collision detected", 0);	            
+	            float2 axis = normalize(vec);
 	            float e1 = dot(axis, ballIn->delta);
 	            float e2 = dot(axis, bPtr[xin].delta);
-	            float e = (e1 - e2) * 0.0f//0.45f;
+	            float e = (e1 - e2) * 0.45f;
 	            if (e1 > 0) {
-	                fv -= axis * e;
+	                fv -= 18.f * axis * e;
 	            } else {
-	                fv += axis * e;
-	            }*/
+	                fv += 18.f * axis * e;
+	            }
 	        }
 	    }
 	
