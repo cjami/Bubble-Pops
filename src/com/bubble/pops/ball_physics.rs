@@ -116,11 +116,13 @@ void root(const Ball_t *ballIn, Ball_t *ballOut, BallControl_t *ctl, uint32_t x)
 	            float2 vec = touchPos[i] - ballIn->position;
 	            float2 vec2 = vec * vec;
 	            float len2 = max(2.f, vec2.x + vec2.y);
-	            if(len2 < 30.f*30.f){
+	            if(len2 < 35.f*35.f){
 	            	if (ballOut->active && ((ballIn->team && touchPos[i].x >= 640) ||
 	            		(!ballIn->team && touchPos[i].x <= 640))) {
 	            		ballOut->active = 0;
 	            		rsSendToClient(POP_EVENT);
+	            		if (ballIn->team == 0) {scores[1]++;}
+	        			else {scores[0]++;}
 	            	} else {
 	            		//rsDebug("Setting id",i);
 	            		ballOut->pointerId = i;
@@ -137,7 +139,7 @@ void root(const Ball_t *ballIn, Ball_t *ballOut, BallControl_t *ctl, uint32_t x)
 	    const float wallForce = 400.f;
 	    if (ballOut->position.x > (gMaxPos.x - 20.f)) {
 	        if (ballIn->team && ballOut->active) {
-	        	scores[ballIn->team]++;
+	        	scores[ballIn->team]+=3;
 	        	ballOut->active = 0;
 //	        	rsDebug("SCORE! ",ballIn->team);
 //	        	rsDebug("With goals: ",scores[ballIn->team]);
@@ -156,7 +158,7 @@ void root(const Ball_t *ballIn, Ball_t *ballOut, BallControl_t *ctl, uint32_t x)
 	
 	    if (ballOut->position.x < (gMinPos.x + 20.f)) {
 	    	if (!ballIn->team && ballOut->active) {
-	    		scores[ballIn->team]++;
+	    		scores[ballIn->team]+=3;
 	        	ballOut->active = 0;
 	        	rsSendToClient(SCORE_EVENT);
 //	        	rsDebug("SCORE! ",ballIn->team);

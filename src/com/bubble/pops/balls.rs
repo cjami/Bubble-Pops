@@ -101,7 +101,6 @@ char *itoa(i)
   return p;
 }
 
-
 int root() {
     rsgClearColor(0.05f, 0.05f, 0.05f, 0.05f);
 
@@ -154,11 +153,10 @@ int root() {
     rsClearObject(&bc.ain);
     rsClearObject(&bc.aout);
     
-    if (active_count == 0) {
+    if (active_count == 0) {    	
     	rsSendToClient(RESET_EVENT);
     	initParts(ws,hs);
-    }
-    
+    } 
     return 15;
 }
 

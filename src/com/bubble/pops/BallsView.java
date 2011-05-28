@@ -70,7 +70,6 @@ public class BallsView extends RSSurfaceView {
             mRender.newTouchPosition(0, 0, 0, pointerId);
             return false;
         }
-        int count = ev.getHistorySize();
         int pcount = ev.getPointerCount();
 
         for (int p=0; p < pcount; p++) {
@@ -79,13 +78,6 @@ public class BallsView extends RSSurfaceView {
                                      ev.getY(p),
                                      ev.getPressure(p),
                                      id);
-
-            for (int i=0; i < count; i++) {
-                mRender.newTouchPosition(ev.getHistoricalX(p, i),
-                                         ev.getHistoricalY(p, i),
-                                         ev.getHistoricalPressure(p, i),
-                                         id);
-            }
         }
         return true;
     }
