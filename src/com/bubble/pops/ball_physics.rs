@@ -24,8 +24,8 @@ static float2 compAvgVel(float deltaHistoryVect[10][2]) {
 	}
 	avgs.x = avgs.x*1.0;
 	avgs.y = avgs.y*1.0;
-	if (avgs.x > 400.f) { avgs.x = 400.f; }
-	if (avgs.x < -400.f) { avgs.x = -400.f; }
+	if (avgs.x > 250.f) { avgs.x = 250.f; }
+	if (avgs.x < -250.f) { avgs.x = -250.f; }
 	return avgs;
 }
 
@@ -60,6 +60,7 @@ void root(const Ball_t *ballIn, Ball_t *ballOut, BallControl_t *ctl, uint32_t x)
     ballOut->size = ballIn->size;
     ballOut->team = ballIn->team;
     ballOut->active = ballIn->active;
+    ballOut->position = ballIn->position;
 	if (ballIn->pointerId > -1 && touchState[ballIn->pointerId] == 2) {
 	
 		// Explode the ball if it is dragged over the half way line
@@ -88,7 +89,7 @@ void root(const Ball_t *ballIn, Ball_t *ballOut, BallControl_t *ctl, uint32_t x)
 	        float2 vec = bPtr[xin].position - pos;
 	        float2 vec2 = vec * vec;
 	        float len2 = vec2.x + vec2.y;
-	        if (bPtr[xin].active && sqrt(len2) < 5.f*ballIn->size && vec.x != 0 && vec.y != 0) {
+	        if (bPtr[xin].active && sqrt(len2) < 5.5f * ballIn->size && vec.x != 0 && vec.y != 0) {
 	            //float minDist = ballIn->size + bPtr[xin].size;
 	            float forceScale = ballIn->size * bPtr[xin].size;
 	            forceScale *= forceScale;
@@ -98,16 +99,17 @@ void root(const Ball_t *ballIn, Ball_t *ballOut, BallControl_t *ctl, uint32_t x)
 	            float2 axis = normalize(vec);
 	            float e1 = dot(axis, ballIn->delta);
 	            float e2 = dot(axis, bPtr[xin].delta);
-	            float e = (e1 - e2) * 0.45f;
+	            //if (e1 < 0.5f || e2 < 0.5f) { e1 = 0.f; e2 = 0.f; }
+	            float e = (e1 - e2);
 	            if (e1 > 0) {
-	                fv -= 18.f * axis * e;
+	                fv -= 8.f * axis * e;
 	            } else {
-	                fv += 18.f * axis * e;
+	                fv += 8.f * axis * e;
 	            }
 	        }
 	    }
-	
-	    fv *= ctl->dt;
+		
+		fv *= ctl->dt;
 	
 	    for (int i=0; i < 10; i++) {
 	        if (touchState[i] != 0) {
@@ -127,8 +129,10 @@ void root(const Ball_t *ballIn, Ball_t *ballOut, BallControl_t *ctl, uint32_t x)
 	        }
 	    }
 	
-	    ballOut->delta = (ballIn->delta * (1.f - 0.005f)) + fv;
-	    ballOut->position = ballIn->position + (ballOut->delta * ctl->dt);
+		float2 candidate = (ballIn->delta * (1.f - 0.02f)) + fv;
+		
+	    ballOut->delta = candidate;
+	    ballOut->position = ballIn->position + (ballOut->delta * ctl->dt);	
 	
 	    const float wallForce = 400.f;
 	    if (ballOut->position.x > (gMaxPos.x - 20.f)) {

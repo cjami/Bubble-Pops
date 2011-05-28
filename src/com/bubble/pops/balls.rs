@@ -48,7 +48,7 @@ void initParts(int w, int h)
         balls1[ct].active = 1;
         balls1[ct].pointerId = -1;
         balls1[ct].team = ct % 2;
-	    balls1[ct].position.y = rsRand(0.f, (float)h);
+	    balls1[ct].position.y = ((ct + 1) / 2) * 150.f;
         if(balls1[ct].team){
 	        balls1[ct].position.x = rsRand(0.f, 0.3f*(float)w);
         }else{
@@ -119,7 +119,7 @@ int root() {
     }
 
     bc.dimX = rsAllocationGetDimX(bc.ain);
-    bc.dt = 1.f / 30.f;
+    bc.dt = 1.f / 10.f;
 
     rsForEach(physics_script, bc.ain, bc.aout, &bc);
 
@@ -157,6 +157,6 @@ int root() {
     	initParts(ws,hs);
     }
     
-    return 10;
+    return 15;
 }
 
