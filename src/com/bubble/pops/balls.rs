@@ -32,6 +32,9 @@ static int frame = 0;
 static float4 color1 = {0.f, 1.f, 0.f, 1.f};
 static float4 color2 = {0.f, 0.f, 1.f, 1.f};
 
+int ws;
+int hs;
+
 void initParts(int w, int h)
 {
     uint32_t dimX = rsAllocationGetDimX(rsGetAllocation(balls1));
@@ -51,6 +54,9 @@ void initParts(int w, int h)
         }
         rsDebug("Ball created. Team: ", balls1[ct].team);
     }
+    
+    hs = h;
+    ws = w;
 }
 
 //char* massiveHack(int num) {
@@ -115,8 +121,11 @@ int root() {
 
     rsForEach(physics_script, bc.ain, bc.aout, &bc);
 
+	int active_count = 0;
+
     for (uint32_t ct=0; ct < bc.dimX; ct++) {
     	if(bout[ct].active){
+    		active_count++;
         	point[ct].position = bout[ct].position;        	
         	point[ct].size = 6.f /*+ bout[ct].color.g * 6.f*/ * bout[ct].size;
         	if (bout[ct].team) {
@@ -135,11 +144,16 @@ int root() {
     rsgFontColor(0.f, 0.f, 1.f, 1.f);
     rsgDrawText(itoa(bc.scores[0]), 620, 30);
     rsgFontColor(0.f, 1.f, 0.f, 1.f);
-    rsgDrawText(itoa(bc.scores[1]), 620, 610);
+    rsgDrawText(itoa(bc.scores[1]), 620, 630);
     rsgBindProgramFragment(gPFPoints);
     rsgDrawMesh(partMesh);
     rsClearObject(&bc.ain);
     rsClearObject(&bc.aout);
+    
+    if (active_count == 0) {
+    	initParts(ws,hs);
+    }
+    
     return 10;
 }
 
